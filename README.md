@@ -2,7 +2,7 @@
 
 Connect to the VConsole.
 
-```mts
+```ts
 import { VConsole } from "./vconsole.mts";
 
 const vconsole = new VConsole();
