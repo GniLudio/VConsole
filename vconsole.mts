@@ -13,7 +13,6 @@ import * as net from "net";
 export class VConsole {
     private readonly socket: net.Socket;
     private readonly encoding: BufferEncoding = "ascii";
-    private leftover_data: Buffer = Buffer.from([]);
 
     public onPRNT?: (event: Chunk, content: PRNTContent) => void;
     public onAINF?: (event: Chunk) => void;
@@ -65,7 +64,6 @@ export class VConsole {
     }
 
     private onData(data: Buffer): void {
-        data = Buffer.concat([this.leftover_data, data]);
         while (data.length >= 12) {
             const event = this.decodeChunk(data);
             if (!event) break;
@@ -92,7 +90,6 @@ export class VConsole {
             }
             data = data.subarray(event.length);
         }
-        this.leftover_data = data;
     }
 
     private encodeChunk(command: string): Buffer {
