@@ -15,6 +15,14 @@ export class VConsole {
     private readonly encoding: BufferEncoding = "ascii";
     private leftover_data: Buffer = Buffer.from([]);
 
+    public onPRNT?: (event: Chunk, content: PRNTContent) => void;
+    public onAINF?: (event: Chunk) => void;
+    public onADON?: (event: Chunk) => void;
+    public onCHAN?: (event: Chunk) => void;
+    public onCVRB?: (event: Chunk) => void;
+    public onEFUL?: (event: Chunk) => void;
+    public onUNKOWN?: (event: Chunk) => void;
+
     public constructor() {
         this.socket = new net.Socket();
         this.socket.on("data", (data: Buffer) => this.onData(data));
@@ -56,31 +64,31 @@ export class VConsole {
         });
     }
 
-    public onPRNT(event: Chunk, content: PRNTContent): void {}
-    public onAINF(event: Chunk): void {}
-    public onADON(event: Chunk) {}
-    public onCHAN(event: Chunk) {}
-    public onCVRB(event: Chunk) {}
-    public onEFUL(event: Chunk) {}
-    public onUNKOWN(event: Chunk) {
-        console.log(event.content.toString());
-    }
-
     private onData(data: Buffer): void {
         data = Buffer.concat([this.leftover_data, data]);
         while (data.length >= 12) {
             const event = this.decodeChunk(data);
             if (!event) break;
             if (event.type == "PRNT") {
-                this.onPRNT(event, this.decodePRNTContent(event.content));
+                if (this.onPRNT) {
+                    this.onPRNT(event, this.decodePRNTContent(event.content));
+                }
             } else if (event.type == "AINF") {
-                this.onAINF(event);
+                if (this.onAINF) {
+                    this.onAINF(event);
+                }
             } else if (event.type == "ADON") {
-                this.onADON(event);
+                if (this.onADON) {
+                    this.onADON(event);
+                }
             } else if (event.type == "CHAN") {
-                this.onCHAN(event);
+                if (this.onCHAN) {
+                    this.onCHAN(event);
+                }
             } else {
-                this.onUNKOWN(event);
+                if (this.onUNKOWN) {
+                    this.onUNKOWN(event);
+                }
             }
             data = data.subarray(event.length);
         }
@@ -149,4 +157,3 @@ export interface PRNTContent {
     unknown_2: number;
     message: string;
 }
-
