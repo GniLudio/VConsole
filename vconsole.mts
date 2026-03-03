@@ -7,7 +7,7 @@ import * as net from "net";
     const vconsole = new VConsole2();
     vconsole.onPRNT = (event, content) => console.log(content.channel, content.message);
     await vconsole.connect();
-    await vconsole.execute("echo Hello vconsole2.mts");
+    await vconsole.execute("echo Hello vconsole.mts");
  * ```
  */
 export class VConsole {
@@ -149,3 +149,4 @@ export interface PRNTContent {
     unknown_2: number;
     message: string;
 }
+
